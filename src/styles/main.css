@@ -24,6 +24,21 @@ body {
     overflow: hidden;
     background-color: #ddd;
 }
+.img-sec .img-figure{
+    position: absolute;
+    width: 250px;
+    height: 300px;
+    padding: 25px;
+    margin: 0;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+.img-sec figcaption .img-title {
+    margin: 20px 0 0 0;
+    color: #a7a0a2;
+    font-size: 16px;
+    text-align: center;
+}
 /* image -- end */
 
 /* controller -- start */

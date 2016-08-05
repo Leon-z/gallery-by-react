@@ -1,7 +1,8 @@
 require('normalize.css/normalize.css');
 require('styles/main.css');
-
+import ReactDOM from 'react-dom';
 import React from 'react';
+import ImageFigure from './ImageFigure';
 
 //获取图片资源
 var imageDatas = require('../data/imageDatas.json');
@@ -11,26 +12,158 @@ var imageDatas = require('../data/imageDatas.json');
  * [getImageUrl 利用自执行函数为数据添加URL信息]
  */
 imageDatas=(function getImageUrl(imageDataArr) {
-    for (var i = 0, j=imageDataArr;length,i<j;i++){
+    for (var i = 0, j=imageDataArr.length;i<j;i++){
         var singImageData = imageDataArr[i];
-        singImageData.imageUrl= require('../images/'+singImageData.fileName);
+        singImageData.imageUrl= require('../images/'+imageDataArr[i].fileName);
         imageDataArr[i]=singImageData;
     }
     return imageDataArr;
 })(imageDatas);
-
+/**
+ * 获取区间内的随机数
+ * @param  {[num]} low   [左区间]
+ * @param  {[num]} hight [右区间]
+ * @return {[num]}       [随机数]
+ */
+function getRangeRandom(low,hight) {
+    return Math.round(Math.random()*(hight-low)+low);
+}
 var GalleryByReact = React.createClass({
+    Constant:{
+        centerPos:{
+            left:0,
+            top:0
+        },
+        hPosRange:{ //水平方向的取值范围
+            leftSecX:[0,0],
+            rightSecX:[0,0],
+            y:[0,0]
+        },
+        vPosRange:{ //垂直方向上的取值范围
+            x:[0,0],
+            topY:[0,0]
+        }
+    },
+    //组件加载后为每张图片计算位置范围。
+    componentDidMount() {
+        //读取舞台大小
+        var stageDOM=ReactDOM.findDOMNode(this.refs.stage),
+            stageW=stageDOM.scrollWidth,
+            stageH=stageDOM.scrollHeight,
+            halfStageW=Math.ceil(stageW/2),
+            halfStageH=Math.ceil(stageH/2);
+        //拿到imgFigure的大小
+        var imgFigureDOM = ReactDOM.findDOMNode(this.refs.imgFigure0),
+            imgFigureW=imgFigureDOM.scrollWidth,
+            imgFigureH=imgFigureDOM.scrollHeight,
+            halfImgFigureW=Math.ceil(imgFigureW/2),
+            halfImgFigureH=Math.ceil(imgFigureH/2);
+        //计算中心图片位置点
+        this.Constant.centerPos={
+            left:halfStageW-halfImgFigureW,
+            top:halfStageH-halfImgFigureH
+        }
+        //计算左右两侧区图片排布域位置点
+        this.Constant.hPosRange.leftSecX[0]=-halfImgFigureW;
+        this.Constant.hPosRange.leftSecX[1]=halfStageW-halfImgFigureW * 3;
+
+        this.Constant.hPosRange.rightSecX[0]=halfStageW+halfImgFigureW;
+        this.Constant.hPosRange.rightSecX[1]=stageW-halfImgFigureW;
+
+        this.Constant.hPosRange.y[0]=-halfImgFigureH;
+        this.Constant.hPosRange.y[1]=stageH-halfImgFigureH;
+
+        //计算上侧区域图片排布位置点
+        this.Constant.vPosRange.topY[0]=-halfImgFigureH;
+        this.Constant.vPosRange.topY[1]=halfStageH-halfImgFigureH * 3;
+        this.Constant.vPosRange.x[0]=halfStageW-imgFigureW;
+        this.Constant.vPosRange.x[1]=halfStageW;
+
+        //初始化图片聚焦第一张
+        this.rearrange(0);
+
+    },
+    /**
+     * 重新布局所有图片
+     * @param  {[node]} centerIndex [指定居中的图片]
+     */
+    rearrange:function (centerIndex) {
+        var imgsArrangeArr =this.state.imgsArrangeArr,
+            Constant=this.Constant,
+            centerPos=Constant.centerPos,
+            hPosRange=Constant.hPosRange,
+            vPosRange=Constant.vPosRange,
+            hPosRangeLeftSecX=hPosRange.leftSecX,
+            hPosRangeRightSecX=hPosRange.rightSecX,
+            hPosRangeY=hPosRange.y,
+            vPosRangeTopY=vPosRange.topY,
+            vPosRangeX=vPosRange.x,
+            //存储布局在上侧区域的状态信息
+            imgsArrangeTopArr=[],
+            topImgNum=Math.ceil(Math.random()*2),//取0个或者1个出现在上侧空间
+            topImgSpliceIndex= 0 ,
+            imgsArrangeCenterArr =imgsArrangeArr.splice(centerIndex,1);
+
+        //首先居中
+        imgsArrangeCenterArr[0].pos=centerPos;
+
+        //取出要布局上侧的状态信息
+        topImgSpliceIndex=Math.ceil(Math.random() * a(imgsArrangeArr.length-topImgNum));
+        imgsArrangeTopArr=imgsArrangeArr.splice(topImgSpliceIndex,topImgNum);
+        
+        //布局上侧图片
+        imgsArrangeTopArr.forEach(function (value,index) {
+            imgsArrangeTopArr[index].pos={
+                left:getRangeRandom(vPosRangeX[0],vPosRangeX[1]),
+                top:getRangeRandom(vPosRangeTopY[0],vPosRangeTopY[1])
+            }
+        })
+        //布局左右两侧图片
+        for(var i=0,j=imgsArrangeArr.length,k=j/2;i<j;i++){
+            var hPosRangeLorR=null;
+            if(i<)
+        }
+    },
+    getInitialState:function () {
+        return{
+            imgsArrangeArr:[
+                /* {
+                    pos:{
+                        left:'0',
+                        top:'0'
+                    }
+                } */
+            ]
+        }
+    },
     render: function() {
+        // 为每个figure添加数据
+        var controllerUnits =[],
+            imgFigures=[];
+            imageDatas.forEach(function (value,index) {
+                if(!this.state.imgsArrangeArr[index]){
+                    this.state.imgsArrangeArr[index]={
+                        pos:{
+                            left:0,
+                            top:0
+                        }
+                    }
+                }
+                imgFigures.push(<ImageFigure data={value} ref={'imgFigure'+index}/>);
+            }.bind(this))
         return (
-            <section className="stage">
+            <section className="stage" ref="stage">
                 <section className="img-sec">
+                    {imgFigures}
                 </section>
                 <nav className="controller-nav">
+                    {controllerUnits}
                 </nav>
             </section>
         );
     }
 })
+
 
 
 
