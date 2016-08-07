@@ -28,6 +28,11 @@ imageDatas=(function getImageUrl(imageDataArr) {
 function getRangeRandom(low,hight) {
     return Math.round(Math.random()*(hight-low)+low);
 }
+
+//获取绝对值在0-30之间的数
+function get30DegRandom() {
+   return Math.random()>0.5?0-Math.round(Math.random()*30):Math.round(Math.random()*30);
+}
 var GalleryByReact = React.createClass({
     Constant:{
         centerPos:{
@@ -43,6 +48,20 @@ var GalleryByReact = React.createClass({
             x:[0,0],
             topY:[0,0]
         }
+    },
+    /**
+     * 翻转图片
+     * @param  {[type]} index 输入当前被执行翻转的图片的index
+     * @return {Function}       返回一个闭包函数，期内return 一个真正待被执行函数
+     */
+    inverse:function (index) {
+        return function() {
+            var  imgsArrangeArr = this.state.imgsArrangeArr;
+            imgsArrangeArr[index].isInverse=!imgsArrangeArr[index].isInverse;
+            this.setState({
+                imgsArrangeArr:imgsArrangeArr
+            });
+        }.bind(this);
     },
     //组件加载后为每张图片计算位置范围。
     componentDidMount() {
@@ -105,24 +124,67 @@ var GalleryByReact = React.createClass({
             imgsArrangeCenterArr =imgsArrangeArr.splice(centerIndex,1);
 
         //首先居中
-        imgsArrangeCenterArr[0].pos=centerPos;
-
+        imgsArrangeCenterArr[0]={
+            pos:centerPos,
+            rotate:0,
+            isCenter:true
+        }
         //取出要布局上侧的状态信息
-        topImgSpliceIndex=Math.ceil(Math.random() * a(imgsArrangeArr.length-topImgNum));
+        topImgSpliceIndex=Math.ceil(Math.random() * (imgsArrangeArr.length-topImgNum));
         imgsArrangeTopArr=imgsArrangeArr.splice(topImgSpliceIndex,topImgNum);
         
+
         //布局上侧图片
         imgsArrangeTopArr.forEach(function (value,index) {
-            imgsArrangeTopArr[index].pos={
-                left:getRangeRandom(vPosRangeX[0],vPosRangeX[1]),
-                top:getRangeRandom(vPosRangeTopY[0],vPosRangeTopY[1])
+            imgsArrangeTopArr[index]={
+                pos:{
+                    left:getRangeRandom(vPosRangeX[0],vPosRangeX[1]),
+                    top:getRangeRandom(vPosRangeTopY[0],vPosRangeTopY[1])
+                },
+                rotate:get30DegRandom(),
+                isCenter:false
             }
+            
         })
         //布局左右两侧图片
         for(var i=0,j=imgsArrangeArr.length,k=j/2;i<j;i++){
+
             var hPosRangeLorR=null;
-            if(i<)
+
+
+            //前半部分布局左边，后半部分布局右边
+            if(i<k){
+                hPosRangeLorR=hPosRangeLeftSecX;
+            }else {
+                hPosRangeLorR=hPosRangeRightSecX;
+            }
+
+            imgsArrangeArr[i]={
+                pos:{
+                    left:getRangeRandom(hPosRangeLorR[0],hPosRangeLorR[1]),
+                    top:getRangeRandom(hPosRangeY[0],hPosRangeY[1])
+                },
+                rotate:get30DegRandom(),
+                isCenter:false
+            }
+            
         }
+
+        //重新合并回去imgsArrangeArr
+        if(imgsArrangeTopArr&&imgsArrangeTopArr[0]){
+            imgsArrangeArr.splice(topImgSpliceIndex,0,imgsArrangeTopArr[0]);
+        }
+
+        imgsArrangeArr.splice(centerIndex,0,imgsArrangeCenterArr[0]);
+
+        this.setState({
+            imgsArrangeArr:imgsArrangeArr
+        })
+    },
+    center:function (index) {
+        return function () {
+            this.rearrange(index);
+        }.bind(this);
     },
     getInitialState:function () {
         return{
@@ -131,7 +193,11 @@ var GalleryByReact = React.createClass({
                     pos:{
                         left:'0',
                         top:'0'
-                    }
+                    },
+                    rotate:0//图片旋转角度
+                    },
+                    isInverse:false//控制图片正反面,
+                    isCenter:false
                 } */
             ]
         }
@@ -146,10 +212,13 @@ var GalleryByReact = React.createClass({
                         pos:{
                             left:0,
                             top:0
-                        }
+                        },
+                        rotate:0,
+                        isInverse:false,
+                        isCenter:false
                     }
                 }
-                imgFigures.push(<ImageFigure data={value} ref={'imgFigure'+index}/>);
+                imgFigures.push(<ImageFigure data={value} ref={'imgFigure'+index} key={index} arrange={this.state.imgsArrangeArr[index]} center={this.center(index)} inverse={this.inverse(index)}/>);
             }.bind(this))
         return (
             <section className="stage" ref="stage">
@@ -162,7 +231,7 @@ var GalleryByReact = React.createClass({
             </section>
         );
     }
-})
+});
 
 
 
