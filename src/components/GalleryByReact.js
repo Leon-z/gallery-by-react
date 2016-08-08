@@ -3,6 +3,7 @@ require('styles/main.css');
 import ReactDOM from 'react-dom';
 import React from 'react';
 import ImageFigure from './ImageFigure';
+import ControllerUnit from './ControllerUnit';
 
 //获取图片资源
 var imageDatas = require('../data/imageDatas.json');
@@ -119,7 +120,7 @@ var GalleryByReact = React.createClass({
             vPosRangeX=vPosRange.x,
             //存储布局在上侧区域的状态信息
             imgsArrangeTopArr=[],
-            topImgNum=Math.ceil(Math.random()*2),//取0个或者1个出现在上侧空间
+            topImgNum=Math.floor(Math.random()*2),//取0个或者1个出现在上侧空间
             topImgSpliceIndex= 0 ,
             imgsArrangeCenterArr =imgsArrangeArr.splice(centerIndex,1);
 
@@ -147,7 +148,7 @@ var GalleryByReact = React.createClass({
             
         })
         //布局左右两侧图片
-        for(var i=0,j=imgsArrangeArr.length,k=j/2;i<j;i++){
+        for(var i=0,j=imgsArrangeArr.length,k=Math.ceil(j/2);i<j;i++){
 
             var hPosRangeLorR=null;
 
@@ -169,7 +170,6 @@ var GalleryByReact = React.createClass({
             }
             
         }
-
         //重新合并回去imgsArrangeArr
         if(imgsArrangeTopArr&&imgsArrangeTopArr[0]){
             imgsArrangeArr.splice(topImgSpliceIndex,0,imgsArrangeTopArr[0]);
@@ -219,6 +219,7 @@ var GalleryByReact = React.createClass({
                     }
                 }
                 imgFigures.push(<ImageFigure data={value} ref={'imgFigure'+index} key={index} arrange={this.state.imgsArrangeArr[index]} center={this.center(index)} inverse={this.inverse(index)}/>);
+                controllerUnits.push(<ControllerUnit arrange={this.state.imgsArrangeArr[index]} inverse={this.inverse(index)} center={this.center(index)}/>);
             }.bind(this))
         return (
             <section className="stage" ref="stage">

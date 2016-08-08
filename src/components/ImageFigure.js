@@ -1,5 +1,3 @@
-require('normalize.css/normalize.css');
-require('styles/main.css');
 import React from 'react';
 // 图片figure相关类
 var ImageFigure =React.createClass({
@@ -27,9 +25,9 @@ var ImageFigure =React.createClass({
         }
         //如果图片的旋转角度有值且不为0 ，添加旋转角度
         if(this.props.arrange.rotate){
-            var compatArr=['Moz','Webkit','Ms',''];
+            var compatArr=['MozTransform','WebkitTransform','msTransform','transform'];
             compatArr.forEach(function (value) {
-                styleObject[value+'Transform']='rotate('+this.props.arrange.rotate+'deg)';
+                styleObject[value]='rotate('+this.props.arrange.rotate+'deg)';
             }.bind(this));
             
         }
