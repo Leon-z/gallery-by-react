@@ -100,7 +100,7 @@ var GalleryByReact = React.createClass({
         this.Constant.vPosRange.x[1]=halfStageW;
 
         //初始化图片聚焦第一张
-        this.rearrange(0);
+        this.rearrange(5);
 
     },
     /**
